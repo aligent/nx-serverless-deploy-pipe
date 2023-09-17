@@ -49,5 +49,5 @@ To run the image locally and mount a local directory to the /app folder: \
 
 ## See also
 
-https://nx.dev/
+https://nx.dev/ \
 https://www.serverless.com/framework/docs/providers/aws/guide/deploying
