@@ -1,0 +1,18 @@
+{
+  "name": "nx-serverless-deploy-pipe",
+  "version": "1.0.0",
+  "description": "Bitbucket Pipeline to deploy multiple Serverless Framework projects in an Nx monorepo",
+  "dependencies": {
+    "glob": "^10.3.4",
+    "js-yaml": "^4.1.0",
+    "js-yaml-cloudformation-schema": "^1.0.0",
+    "nx": "^16.8.1",
+    "ts-node": "^10.9.1",
+    "yaml": "^2.3.2"
+  },
+  "devDependencies": {
+    "@serverless/typescript": "^3.30.1",
+    "@types/js-yaml": "^4.0.6",
+    "@types/node": "^20.6.2"
+  }
+}
