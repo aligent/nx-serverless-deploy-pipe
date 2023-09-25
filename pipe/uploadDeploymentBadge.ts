@@ -4,55 +4,46 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import FormData from "form-data";
+import { env } from "./env";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export async function uploadDeploymentBadge(wasSuccessful: boolean) {
-  const {
-    APP_USERNAME: appUsername,
-    APP_PASSWORD: appPassword,
-    BITBUCKET_BRANCH: bitbucketBranch,
-    BITBUCKET_WORKSPACE: bitbucketWorkspace,
-    BITBUCKET_REPO_SLUG: bitbucketRepoSlug,
-    TIMEZONE: timezone,
-    UPLOAD_BADGE: uploadBadge,
-  } = process.env;
-
-  if (!uploadBadge || uploadBadge === "false") {
+  if (!env.uploadBadge) {
     console.log("Skipping badge upload");
     return;
   }
 
-  if (!appUsername || !appPassword) {
+  if (!env.appUsername || !env.appPassword) {
     console.error(
       "APP_USERNAME or APP_PASSWORD not set, we cannot upload badge without them."
     );
     throw new Error("Failed to upload deployment badge.");
   }
 
-  const badge = generateDeploymentBadge(wasSuccessful, timezone);
+  const badge = generateDeploymentBadge(wasSuccessful);
 
   const formData = new FormData();
   formData.append("files", badge, {
-    filename: `${bitbucketBranch}_status.svg`,
+    filename: `${env.bitbucketBranch}_status.svg`,
     contentType: "image/svg+xml",
   });
 
   await axios.post(
-    `https://api.bitbucket.org/2.0/repositories/${bitbucketWorkspace}/${bitbucketRepoSlug}/downloads`,
+    `https://api.bitbucket.org/2.0/repositories/${env.bitbucketWorkspace}/${env.bitbucketRepoSlug}/downloads`,
     formData,
     {
       auth: {
-        username: appUsername,
-        password: appPassword,
+        username: env.appUsername,
+        password: env.appPassword,
       },
     }
   );
 }
 
-function generateDeploymentBadge(wasSuccessful: boolean, timezone = "UTC") {
-  const time = dayjs(new Date()).tz(timezone).format("DD MMM, YYYY, HH:mm");
+function generateDeploymentBadge(wasSuccessful: boolean) {
+  const time = dayjs(new Date()).tz(env.timezone).format("DD MMM, YYYY, HH:mm");
 
   return makeBadge({
     label: "deployment",
