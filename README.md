@@ -39,13 +39,24 @@ Each application should also have a `project.json` file defining an `nx` target 
 
 ## Development
 
-To build the container locally: \
+To build the image locally: \
 `docker build -t aligent/nx-pipe .`
 
-To run the image locally and mount a local directory to the /app folder: \
+To run the container locally and mount current local directory to the /app/work folder:
 
-`` docker run -it -e BITBUCKET_CLONE_DIR=/app/work -e STAGE=stg -e PROFILE=bitbucket-deployer -e CFN_ROLE=test-cfn-role -v `pwd`:/app/work --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/bash {built container id}
- ``
+```bash
+docker run -it -v $(pwd):/app/work --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/sh \
+  -e BITBUCKET_CLONE_DIR=/app/work \
+  -e STAGE=stg \
+  -e PROFILE=bitbucket-deployer \
+  -e AWS_ACCESS_KEY_ID=test-access-key-id \
+  -e AWS_SECRET_ACCESS_KEY=test-secret-access-key \
+  -e CFN_ROLE=test-cfn-role \
+  -e UPLOAD_BADGE=true \
+  -e APP_USERNAME=test-app-username \
+  -e APP_PASSWORD=test-app-password \
+  aligent/nx-pipe:latest
+```
 
 ## See also
 
