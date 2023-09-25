@@ -16,10 +16,9 @@ export async function uploadDeploymentBadge(wasSuccessful: boolean) {
   }
 
   if (!env.appUsername || !env.appPassword) {
-    console.error(
+    throw new Error(
       "APP_USERNAME or APP_PASSWORD not set, we cannot upload badge without them."
     );
-    throw new Error("Failed to upload deployment badge.");
   }
 
   const badge = generateDeploymentBadge(wasSuccessful);
