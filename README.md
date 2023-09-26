@@ -85,7 +85,7 @@ docker run -it -v $(pwd):/app/work --memory=4g --memory-swap=4g --memory-swappin
   -e AWS_ACCESS_KEY_ID=test-access-key-id \
   -e AWS_SECRET_ACCESS_KEY=test-secret-access-key \
   -e CFN_ROLE=test-cfn-role \
-  -e UPLOAD_BADGE=true \
+  -e UPLOAD_BADGE=false \
   -e APP_USERNAME=test-app-username \
   -e APP_PASSWORD=test-app-password \
   aligent/nx-pipe:latest
