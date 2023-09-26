@@ -1,7 +1,7 @@
-import { dump, load } from "js-yaml";
-import { CLOUDFORMATION_SCHEMA } from "js-yaml-cloudformation-schema";
 import type { AWS } from "@serverless/typescript";
 import { readFile, writeFile } from "fs/promises";
+import { dump, load } from "js-yaml";
+import { CLOUDFORMATION_SCHEMA } from "js-yaml-cloudformation-schema";
 
 export async function injectCfnRole(
   serverlessYamlPath: string,

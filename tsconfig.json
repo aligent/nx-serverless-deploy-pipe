@@ -18,6 +18,7 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "importHelpers": true
   }
 }

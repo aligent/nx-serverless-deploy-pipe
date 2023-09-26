@@ -1,5 +1,5 @@
-# Alpine required for apk add
-FROM node:18-alpine
+ARG NODE_TAG
+FROM node:${NODE_TAG}
 
 RUN mkdir /pipe
 WORKDIR /pipe
