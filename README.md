@@ -73,12 +73,13 @@ Each application should also have a `project.json` file defining an `nx` target 
 ## Development
 
 To build the image locally: \
-`docker build --build-arg="NODE_TAG=18-alpine" -t aligent/nx-pipe .`
+`docker build --build-arg="NODE_TAG=18-alpine" -t aligent/nx-pipe:18-alpine .`
 
 To run the container locally and mount current local directory to the /app/work folder:
 
 ```bash
-docker run -it -v $(pwd):/app/work --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/sh \
+docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/sh \
+  -v $(pwd):/app/work --workdir=/app/work \
   -e BITBUCKET_CLONE_DIR=/app/work \
   -e PROFILE=bitbucket-deployer \
   -e STAGE=stg \
@@ -88,7 +89,7 @@ docker run -it -v $(pwd):/app/work --memory=4g --memory-swap=4g --memory-swappin
   -e UPLOAD_BADGE=false \
   -e APP_USERNAME=test-app-username \
   -e APP_PASSWORD=test-app-password \
-  aligent/nx-pipe:latest
+  aligent/nx-pipe:18-alpine
 ```
 
 ## See also

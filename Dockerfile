@@ -14,4 +14,4 @@ COPY entrypoint.sh ./
 COPY pipe ./pipe
 RUN chmod a+x ./pipe/*.ts entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/pipe/entrypoint.sh"]
