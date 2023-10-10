@@ -2,6 +2,7 @@ import type { AWS } from "@serverless/typescript";
 import { readFile, writeFile } from "fs/promises";
 import { dump, load } from "js-yaml";
 import { CLOUDFORMATION_SCHEMA } from "js-yaml-cloudformation-schema";
+import { env } from "./env";
 
 export async function injectCfnRole(
   serverlessYamlPath: string,
@@ -13,8 +14,7 @@ export async function injectCfnRole(
     const yaml = await readFile(serverlessYamlPath, "utf8");
     const serverless = load(yaml, { schema: CLOUDFORMATION_SCHEMA }) as AWS;
 
-    // TODO: Remove this development log
-    console.log(JSON.stringify(serverless, null, 2));
+    if (env.debug) console.log(JSON.stringify(serverless, null, 2));
 
     // Ensure iam exists in the provider block
     if (!("iam" in serverless.provider)) {
