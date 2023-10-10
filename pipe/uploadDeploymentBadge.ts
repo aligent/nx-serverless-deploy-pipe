@@ -9,36 +9,48 @@ import { env } from "./env";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export async function uploadDeploymentBadge(wasSuccessful: boolean) {
-  if (!env.uploadBadge) {
-    console.log("Skipping badge upload");
-    return;
-  }
+// This function try to upload deployment badge the return exit status code
+// Return 0 when both deployment & uploading badge was successful. Return 1 otherwise
+export async function uploadDeploymentBadge(
+  wasSuccessful: boolean
+): Promise<number> {
+  let statusCode = wasSuccessful ? 0 : 1;
 
-  if (!env.appUsername || !env.appPassword) {
-    throw new Error(
-      "APP_USERNAME or APP_PASSWORD not set, we cannot upload badge without them."
-    );
-  }
-
-  const badge = generateDeploymentBadge(wasSuccessful);
-
-  const formData = new FormData();
-  formData.append("files", badge, {
-    filename: `${env.bitbucketBranch}_status.svg`,
-    contentType: "image/svg+xml",
-  });
-
-  await axios.post(
-    `https://api.bitbucket.org/2.0/repositories/${env.bitbucketWorkspace}/${env.bitbucketRepoSlug}/downloads`,
-    formData,
-    {
-      auth: {
-        username: env.appUsername,
-        password: env.appPassword,
-      },
+  try {
+    if (!env.uploadBadge) {
+      console.log("Skipping badge upload");
+      return statusCode;
     }
-  );
+
+    if (!env.appUsername || !env.appPassword) {
+      throw new Error(
+        "APP_USERNAME or APP_PASSWORD not set, we cannot upload badge without them."
+      );
+    }
+
+    const badge = generateDeploymentBadge(wasSuccessful);
+
+    const formData = new FormData();
+    formData.append("files", badge, {
+      filename: `${env.bitbucketBranch}_status.svg`,
+      contentType: "image/svg+xml",
+    });
+
+    await axios.post(
+      `https://api.bitbucket.org/2.0/repositories/${env.bitbucketWorkspace}/${env.bitbucketRepoSlug}/downloads`,
+      formData,
+      {
+        auth: {
+          username: env.appUsername,
+          password: env.appPassword,
+        },
+      }
+    );
+    return statusCode;
+  } catch (error) {
+    console.error(error as Error);
+    return 1;
+  }
 }
 
 function generateDeploymentBadge(wasSuccessful: boolean) {
