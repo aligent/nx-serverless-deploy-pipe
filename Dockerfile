@@ -1,11 +1,12 @@
 ARG NODE_TAG
 FROM node:${NODE_TAG}
 
-RUN mkdir /pipe
-WORKDIR /pipe
-
+RUN corepack enable
 RUN apk add wget 
 RUN wget -P / https://bitbucket.org/bitbucketpipelines/bitbucket-pipes-toolkit-bash/raw/0.4.0/common.sh
+
+RUN mkdir /pipe
+WORKDIR /pipe
 
 COPY tsconfig.json ./
 COPY pack*.json ./
