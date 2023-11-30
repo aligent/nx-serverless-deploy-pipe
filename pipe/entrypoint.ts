@@ -22,7 +22,7 @@ async function main() {
     await runCLICommand([
       "npm ci",
       `npx serverless config credentials --provider aws --profile ${env.profile} --key ${env.awsAccessKeyId} --secret ${env.awsSecretAccessKey}`,
-      `npx nx run-many -t deploy --stage ${env.stage} --aws-profile ${env.profile}`,
+      `npx nx run-many -t deploy -- --verbose --stage ${env.stage} --aws-profile ${env.profile}`,
     ]);
 
     deploymentStatus = true;
