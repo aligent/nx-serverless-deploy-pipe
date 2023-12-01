@@ -27,7 +27,7 @@ async function main() {
 
     deploymentStatus = true;
   } catch (error) {
-    console.error(
+    console.log(
       "Deployment failed! Please check the logs for more details.Error:",
       error as Error
     );

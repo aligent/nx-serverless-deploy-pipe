@@ -21,7 +21,7 @@ function asyncSpawn(
     });
 
     process.stderr.on("data", (data) => {
-      console.error(data.toString());
+      console.log(`Error: ${data.toString()}`);
     });
 
     process.on("exit", function (code) {

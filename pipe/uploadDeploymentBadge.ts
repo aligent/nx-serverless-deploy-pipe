@@ -48,7 +48,7 @@ export async function uploadDeploymentBadge(
     );
     return statusCode;
   } catch (error) {
-    console.error(error as Error);
+    console.log(`Error: ${error as Error}`);
     return 1;
   }
 }
