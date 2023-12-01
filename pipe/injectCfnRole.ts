@@ -58,7 +58,7 @@ export async function injectCfnRole(
     await writeFile(serverlessYamlPath, modifiedYaml, "utf8");
     console.log(`ℹ️ Injected CFN role ${cfnRole} at ${serverlessYamlPath}`);
   } catch (error) {
-    console.error(error);
+    console.log(`Error: ${error}`);
     throw new Error(`Failed to inject CFN_role at path ${serverlessYamlPath}`);
   }
 }
