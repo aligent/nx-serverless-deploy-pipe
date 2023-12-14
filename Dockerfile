@@ -1,5 +1,5 @@
 ARG NODE_TAG
-FROM node:${NODE_TAG}
+FROM node:${NODE_TAG}-alpine
 
 RUN mkdir /pipe
 WORKDIR /pipe
