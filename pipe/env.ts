@@ -2,6 +2,7 @@ interface Env {
   debug: boolean;
   stage: string;
   profile: string;
+  cmd: string;
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
   cfnRole?: string;
@@ -12,12 +13,14 @@ interface Env {
   bitbucketBranch?: string;
   bitbucketRepoSlug?: string;
   bitbucketWorkspace?: string;
+  servicesPath?: string;
 }
 
 export const env: Env = {
   debug: process.env.DEBUG === "true",
   stage: process.env.STAGE || "stg",
   profile: process.env.PROFILE || "bitbucket-deployer",
+  cmd: process.env.cmd || "deploy",
   awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   cfnRole: process.env.CFN_ROLE,
@@ -28,4 +31,5 @@ export const env: Env = {
   bitbucketBranch: process.env.BITBUCKET_BRANCH,
   bitbucketRepoSlug: process.env.BITBUCKET_REPO_SLUG,
   bitbucketWorkspace: process.env.BITBUCKET_WORKSPACE,
+  servicesPath: process.env.servicesPath || "/services",
 };
