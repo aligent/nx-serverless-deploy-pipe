@@ -6,7 +6,7 @@ export async function findServerlessYaml(basePath: string) {
 
   console.log(`Fetching serverless configuration with pattern ${globPattern}`);
 
-  const files = await glob(globPattern, {});
+  const files = await glob(globPattern, { ignore: ["**/node_modules/**"] });
 
   for (const file of files) {
     console.log("Found serverless.yml at: ", file);
