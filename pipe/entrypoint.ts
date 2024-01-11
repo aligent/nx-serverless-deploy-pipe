@@ -1,29 +1,54 @@
+import { glob } from "glob";
 import { runCLICommand } from "./cmd";
 import { env } from "./env";
 import { findServerlessYaml } from "./findServerlessYaml";
 import { injectCfnRole } from "./injectCfnRole";
 import { uploadDeploymentBadge } from "./uploadDeploymentBadge";
+import { nodeModulesDirectoryExist } from "./findNodeModules";
+
+const cloneDir = process.env.BITBUCKET_CLONE_DIR || "";
 
 async function main() {
   let deploymentStatus = false;
 
   try {
+    const rootServerlessYmlFile = await glob(
+      `${cloneDir}/serverless.{yml,yaml}`,
+      {}
+    );
+    const nxProject = rootServerlessYmlFile.length == 0;
+
     if (!env.awsAccessKeyId || !env.awsSecretAccessKey) {
       throw new Error("AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY not set");
     }
 
-    const serverlessFiles = await findServerlessYaml(
-      `${process.env.BITBUCKET_CLONE_DIR}/services`
+    const servicesPath = nxProject ? env.servicesPath : "";
+    let serverlessFiles = await findServerlessYaml(
+      `${cloneDir}${servicesPath}`
     );
+
     await Promise.all(
       serverlessFiles.map((file) => injectCfnRole(file, env.cfnRole))
     );
 
-    await runCLICommand([
-      "npm ci",
+    const commands = [
       `npx serverless config credentials --provider aws --profile ${env.profile} --key ${env.awsAccessKeyId} --secret ${env.awsSecretAccessKey}`,
-      `npx nx run-many -t deploy -- --verbose --stage ${env.stage} --aws-profile ${env.profile}`,
-    ]);
+    ];
+
+    const nodeModulesExists = await nodeModulesDirectoryExist(cloneDir);
+    if (!nodeModulesExists) {
+      commands.unshift("npm ci");
+    }
+
+    const nxCommand = nxProject
+      ? `npx nx run-many -t ${env.cmd} --`
+      : `npx serverless ${env.cmd}`;
+    const verboseOption = env.debug ? "--verbose" : "";
+    const serverlessCommand = `${nxCommand} --stage ${env.stage} --aws-profile ${env.profile}${verboseOption}`;
+
+    commands.push(serverlessCommand);
+
+    await runCLICommand(commands);
 
     deploymentStatus = true;
   } catch (error) {
