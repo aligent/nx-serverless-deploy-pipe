@@ -10,7 +10,7 @@ Add the following your `bitbucket-pipelines.yml` file:
 
 ```yaml
 - step:
-    name: "deploy service"
+    name: 'deploy service'
     script:
       - pipe: docker://aligent/nx-serverless-deploy-pipe:latest
         variables:
