@@ -11,9 +11,10 @@ interface Env {
     appPassword?: string;
     timezone: string;
     bitbucketBranch?: string;
+    bitbucketCloneDir: string;
     bitbucketRepoSlug?: string;
     bitbucketWorkspace?: string;
-    servicesPath?: string;
+    servicesPath: string;
 }
 
 export const env: Env = {
@@ -29,7 +30,8 @@ export const env: Env = {
     appPassword: process.env.APP_PASSWORD,
     timezone: process.env.TIMEZONE || 'Australia/Adelaide',
     bitbucketBranch: process.env.BITBUCKET_BRANCH,
+    bitbucketCloneDir: process.env.BITBUCKET_CLONE_DIR || '',
     bitbucketRepoSlug: process.env.BITBUCKET_REPO_SLUG,
     bitbucketWorkspace: process.env.BITBUCKET_WORKSPACE,
-    servicesPath: process.env.servicesPath || '/services',
+    servicesPath: process.env.servicesPath || 'services',
 };

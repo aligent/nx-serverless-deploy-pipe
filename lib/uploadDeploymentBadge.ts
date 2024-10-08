@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { makeBadge } from 'badge-maker';
+import chalk from 'chalk';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import FormData from 'form-data';
+import logSymbols from 'log-symbols';
 import { env } from './env';
 
 dayjs.extend(utc);
@@ -16,13 +18,22 @@ export async function uploadDeploymentBadge(
 ): Promise<number> {
     let statusCode = wasSuccessful ? 0 : 1;
 
+    const {
+        appUsername,
+        appPassword,
+        bitbucketBranch,
+        bitbucketRepoSlug,
+        bitbucketWorkspace,
+        uploadBadge,
+    } = env;
+
     try {
-        if (!env.uploadBadge) {
-            console.log('Skipping badge upload');
+        if (!uploadBadge) {
+            console.log(logSymbols.info, chalk.white('Skipping badge upload'));
             return statusCode;
         }
 
-        if (!env.appUsername || !env.appPassword) {
+        if (!appUsername || !appPassword) {
             throw new Error(
                 'APP_USERNAME or APP_PASSWORD not set, we cannot upload badge without them.'
             );
@@ -32,23 +43,23 @@ export async function uploadDeploymentBadge(
 
         const formData = new FormData();
         formData.append('files', badge, {
-            filename: `${env.bitbucketBranch}_status.svg`,
+            filename: `${bitbucketBranch}_status.svg`,
             contentType: 'image/svg+xml',
         });
 
         await axios.post(
-            `https://api.bitbucket.org/2.0/repositories/${env.bitbucketWorkspace}/${env.bitbucketRepoSlug}/downloads`,
+            `https://api.bitbucket.org/2.0/repositories/${bitbucketWorkspace}/${bitbucketRepoSlug}/downloads`,
             formData,
             {
                 auth: {
-                    username: env.appUsername,
-                    password: env.appPassword,
+                    username: appUsername,
+                    password: appPassword,
                 },
             }
         );
         return statusCode;
     } catch (error) {
-        console.log(`Error: ${error as Error}`);
+        console.error(logSymbols.error, chalk.red(error));
         return 1;
     }
 }
