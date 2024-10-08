@@ -1,17 +1,17 @@
-ARG NODE_TAG
+ARG NODE_TAG=latest
 FROM node:${NODE_TAG}-alpine
 
 RUN mkdir /pipe
 WORKDIR /pipe
 
-RUN apk add wget 
-RUN wget -P / https://bitbucket.org/bitbucketpipelines/bitbucket-pipes-toolkit-bash/raw/0.4.0/common.sh
+# The `--force` flag force replace `yarn` if it exist in base image
+# This ensure we have the latest version of package managers
+RUN npm install -g --force npm pnpm yarn
 
-COPY tsconfig.json ./
-COPY pack*.json ./
-RUN npm ci
+COPY node_modules ./node_modules
+COPY dist/ ./
 COPY entrypoint.sh ./
-COPY pipe ./pipe
-RUN chmod a+x ./pipe/*.ts entrypoint.sh
+
+RUN chmod a+x ./**/*.js entrypoint.sh
 
 ENTRYPOINT ["/pipe/entrypoint.sh"]
