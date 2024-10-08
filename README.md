@@ -1,6 +1,9 @@
-# Aligent Nx Serverless Deploy Pipe
+# Aligent Serverless Deploy Pipe
 
-This pipe is used to deploy multiple Serverless Framework applications in an Nx monorepo.
+This pipe is used to deploy:
+
+- Multiple Serverless Framework applications in an Nx monorepo.
+- Single Serverless Framework application in a polyrepo.
 
 ## YAML Definition
 
@@ -37,21 +40,27 @@ Add the following your `bitbucket-pipelines.yml` file:
 
 ## Monorepo structure
 
-The pipe expects each application to be under a root folder called `services`, and to have a `serverless.yml` file in its own root folder.
+The pipe expects:
+
+1. A single `nx.json` file at the root folder.
+2. Each application to be under a folder called `services`, and to have a `serverless.yml` and a `project.json` files in its own folder.
 
 ```
-services
-  - application-one
-    - serverless.yml
-    - project.json
-    ... other files
-  - application-two
-    - serverless.yml
-    - project.json
-    ... other files
+.
+├── nx.json
+├── services/
+│   ├── application-one/
+│   │   ├── serverless.yml
+│   │   ├── project.json
+│   │   └── ...other files
+│   └── application-two/
+│       ├── serverless.yml
+│       ├── project.json
+│       └── ...other files
+└── ...other files
 ```
 
-Each application should also have a `project.json` file defining an `nx` target called `deploy`, which implements serverless deploy.
+The `project.json` file defining an `nx` target called `deploy`, which implements serverless deployment command:
 
 ```json
 {
@@ -70,10 +79,33 @@ Each application should also have a `project.json` file defining an `nx` target 
 }
 ```
 
+## Polyrepo structure
+
+The pipe expects:
+
+1. No `nx.json` file at the root folder.
+2. A `serverless.yml` file at the root folder.
+
+```
+.
+├── serverless.yml
+├── src/
+│   └── ...other files
+└── ...other files
+```
+
 ## Development
 
-To build the image locally: \
-`docker build --build-arg="NODE_TAG=18-alpine" -t aligent/nx-pipe:18-alpine .`
+To build the image locally:
+
+```bash
+# [Optional] Run this if we want to remove devDependencies from node_modules before building
+npm ci --omit=dev
+# Transpile our source code to Javascript
+npm run build
+# Build docker image
+docker build --build-arg="NODE_TAG=20" -t aligent/nx-pipe:20-alpine .
+```
 
 To run the container locally and mount current local directory to the /app/work folder:
 
@@ -89,7 +121,7 @@ docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --ent
   -e UPLOAD_BADGE=false \
   -e APP_USERNAME=test-app-username \
   -e APP_PASSWORD=test-app-password \
-  aligent/nx-pipe:18-alpine
+  aligent/nx-pipe:20-alpine
 ```
 
 ## See also
