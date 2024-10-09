@@ -33,7 +33,10 @@ Add the following your `bitbucket-pipelines.yml` file:
 | UPLOAD_BADGE          | Whether or not to upload a deployment badge to the repositories downloads section. (Accepted values: `true`/`false`)                           |
 | APP_USERNAME          | The user to upload the badge as. Required if UPLOAD_BADGE is set to `true`.                                                                    |
 | APP_PASSWORD          | The app password of the user uploading the badge. Required if UPLOAD_BADGE is set to `true`.                                                   |
-| TIMEZONE              | Which time zone the time in the badge should use (Default: 'Australia/Adelaide')                                                               |
+| TIMEZONE              | Which time zone the time in the badge should use (Default: `Australia/Adelaide`)                                                               |
+| PROFILE               | The profile name that is used for deployment (Default: `bitbucket-deployer`)                                                                   |
+| CMD                   | The command that this pipe will run (Eg: `deploy`, `remove`. Default: `deploy`)                                                                |
+| SERVICES_PATH         | The relative path from root folder to the folder where applications are defined (Default: `services`)                                          |
 
 - Default pipelines variables that are available for builds: https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/
 - Please check: https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/ for how to generate an app password.
@@ -43,7 +46,7 @@ Add the following your `bitbucket-pipelines.yml` file:
 The pipe expects:
 
 1. A single `nx.json` file at the root folder.
-2. Each application to be under a folder called `services`, and to have a `serverless.yml` and a `project.json` files in its own folder.
+2. Each application to be under a folder as defined via `SERVICES_PATH` variable above (default as `services`), and to have a `serverless.yml` and a `project.json` files in its own folder.
 
 ```
 .
@@ -60,7 +63,7 @@ The pipe expects:
 └── ...other files
 ```
 
-The `project.json` file defining an `nx` target called `deploy`, which implements serverless deployment command:
+The `project.json` file defining an Nx target called `deploy`, which implements serverless deployment command:
 
 ```json
 {
