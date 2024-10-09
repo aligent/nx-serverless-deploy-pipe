@@ -10,9 +10,13 @@ jobs:
         with:
           ref: ${{ github.event.release.target_commitish }}
       - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
       - name: Build pipeline code
         run: |
-          npm ci --omit=dev
+          npm ci
           npm run build
+      - name: Trim down devDependencies
+        run: npm prune --production
       - name: Build docker image
         run: docker build --build-arg NODE_TAG=20 .

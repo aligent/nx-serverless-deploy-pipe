@@ -1,10 +1,12 @@
 {
   "name": "nx-serverless-deploy-pipe",
-  "version": "1.0.0",
-  "description": "Bitbucket Pipeline to deploy multiple Serverless Framework projects in an Nx monorepo",
+  "version": "1.1.0",
+  "description": "Bitbucket Pipeline to deploy multiple Serverless Framework projects",
+  "main": "bin/index.js",
+  "author": "Aligent",
+  "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
+    "build": "tsc"
   },
   "dependencies": {
     "axios": "^1.5.0",

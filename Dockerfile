@@ -10,7 +10,7 @@ RUN npm install -g --force npm pnpm yarn
 
 COPY node_modules ./node_modules
 COPY dist/ ./
-COPY entrypoint.sh ./
+COPY entrypoint.sh package.json ./
 
 RUN chmod a+x ./**/*.js entrypoint.sh
 
