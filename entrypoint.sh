@@ -1,5 +1,4 @@
 #!/bin/sh
 #set -x
 
-cd /pipe
-npx ts-node pipe/entrypoint.ts
+node /pipe/bin/index.js

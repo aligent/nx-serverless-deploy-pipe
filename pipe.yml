@@ -1,9 +1,0 @@
-name: Aligent Adobe App Builder Deploy Pipe
-image: aligent/aio-deploy-pipe
-description: This pipe is used to deploy multiple Serverless Framework applications in an Nx monorepo.
-repository: git@bitbucket.org:aligent/nx-serverless-deploy-pipe.git
-maintainer: devops@aligent.com.au
-tags:
-  - bitbucket-pipelines
-  - pipes
-  - typescript

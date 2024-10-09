@@ -1,6 +1,9 @@
-# Aligent Nx Serverless Deploy Pipe
+# Aligent Serverless Deploy Pipe
 
-This pipe is used to deploy multiple Serverless Framework applications in an Nx monorepo.
+This pipe is used to deploy:
+
+- Multiple Serverless Framework applications in an Nx monorepo.
+- Single Serverless Framework application in a polyrepo.
 
 ## YAML Definition
 
@@ -30,28 +33,37 @@ Add the following your `bitbucket-pipelines.yml` file:
 | UPLOAD_BADGE          | Whether or not to upload a deployment badge to the repositories downloads section. (Accepted values: `true`/`false`)                           |
 | APP_USERNAME          | The user to upload the badge as. Required if UPLOAD_BADGE is set to `true`.                                                                    |
 | APP_PASSWORD          | The app password of the user uploading the badge. Required if UPLOAD_BADGE is set to `true`.                                                   |
-| TIMEZONE              | Which time zone the time in the badge should use (Default: 'Australia/Adelaide')                                                               |
+| TIMEZONE              | Which time zone the time in the badge should use (Default: `Australia/Adelaide`)                                                               |
+| PROFILE               | The profile name that is used for deployment (Default: `bitbucket-deployer`)                                                                   |
+| CMD                   | The command that this pipe will run (Eg: `deploy`, `remove`. Default: `deploy`)                                                                |
+| SERVICES_PATH         | The relative path from root folder to the folder where applications are defined (Default: `services`)                                          |
 
 - Default pipelines variables that are available for builds: https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/
 - Please check: https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/ for how to generate an app password.
 
 ## Monorepo structure
 
-The pipe expects each application to be under a root folder called `services`, and to have a `serverless.yml` file in its own root folder.
+The pipe expects:
+
+1. A single `nx.json` file at the root folder.
+2. Each application to be under a folder as defined via `SERVICES_PATH` variable above (default as `services`), and to have a `serverless.yml` and a `project.json` files in its own folder.
 
 ```
-services
-  - application-one
-    - serverless.yml
-    - project.json
-    ... other files
-  - application-two
-    - serverless.yml
-    - project.json
-    ... other files
+.
+├── nx.json
+├── services/
+│   ├── application-one/
+│   │   ├── serverless.yml
+│   │   ├── project.json
+│   │   └── ...other files
+│   └── application-two/
+│       ├── serverless.yml
+│       ├── project.json
+│       └── ...other files
+└── ...other files
 ```
 
-Each application should also have a `project.json` file defining an `nx` target called `deploy`, which implements serverless deploy.
+The `project.json` file defining an Nx target called `deploy`, which implements serverless deployment command:
 
 ```json
 {
@@ -70,12 +82,36 @@ Each application should also have a `project.json` file defining an `nx` target 
 }
 ```
 
+## Polyrepo structure
+
+The pipe expects:
+
+1. No `nx.json` file at the root folder.
+2. A `serverless.yml` file at the root folder.
+
+```
+.
+├── serverless.yml
+├── src/
+│   └── ...other files
+└── ...other files
+```
+
 ## Development
 
-To build the image locally: \
-`docker build --build-arg="NODE_TAG=18-alpine" -t aligent/nx-pipe:18-alpine .`
+1. build the image locally:
 
-To run the container locally and mount current local directory to the /app/work folder:
+```bash
+# Transpile our source code to Javascript
+npm run build
+# [Optional] Run this if we want to remove devDependencies from node_modules before building docker image
+# If we run this, we will need to re-run `npm ci` later on if we fix bug & want to build another image.
+npm prune --production
+# Build docker image
+docker build --build-arg="NODE_TAG=20" -t aligent/nx-pipe:20-alpine .
+```
+
+2. Run the container locally and mount current local directory to the /app/work folder:
 
 ```bash
 docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/sh \
@@ -89,7 +125,8 @@ docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --ent
   -e UPLOAD_BADGE=false \
   -e APP_USERNAME=test-app-username \
   -e APP_PASSWORD=test-app-password \
-  aligent/nx-pipe:18-alpine
+  -e DEBUG=true \
+  aligent/nx-pipe:20-alpine
 ```
 
 ## See also

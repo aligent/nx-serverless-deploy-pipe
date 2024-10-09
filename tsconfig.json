@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
+        "outDir": "dist",
         "target": "ES2018",
         "module": "commonjs",
         "lib": [ "es2018" ],
-        "declaration": true,
         "strict": true,
         "noImplicitAny": true,
         "strictNullChecks": true,
@@ -19,6 +19,6 @@
         "strictPropertyInitialization": false,
         "skipLibCheck": true,
         "esModuleInterop": true,
-        "importHelpers": true
+        "types": ["node"]
     }
 }

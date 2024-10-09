@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import fs from 'fs';
 
 export async function nodeModulesDirectoryExist(
     directoryPath: string
@@ -7,10 +7,10 @@ export async function nodeModulesDirectoryExist(
         .access(`${directoryPath}/node_modules`, fs.constants.F_OK)
         .then(() => true)
         .catch((error) => {
-            if (error.code === 'ENOENT') {
-                return false;
-            } else {
+            if (error.code !== 'ENOENT') {
                 throw error;
             }
+
+            return false;
         });
 }
