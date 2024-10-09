@@ -7,6 +7,7 @@ export async function isNxServerlessMonorepo(directoryPath: string) {
 
     const serverlessYmlFiles = await glob('serverless.{yml,yaml}', {
         cwd: directoryPath,
+        ignore: ['**/node_modules/**'],
     });
     const isServerlessFileExist = serverlessYmlFiles.length > 0;
 

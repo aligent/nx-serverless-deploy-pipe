@@ -19,7 +19,7 @@ export async function injectCfnRole(
         if (env.debug) {
             console.log(
                 logSymbols.info,
-                chalk.white(JSON.stringify(serverless, null, 2))
+                chalk.whiteBright(JSON.stringify(serverless, null, 2))
             );
         }
 
@@ -35,7 +35,7 @@ export async function injectCfnRole(
         ) {
             console.warn(
                 logSymbols.warning,
-                chalk.yellow(
+                chalk.yellowBright(
                     'It looks like serverless.yaml already defines a CFN role.'
                 )
             );
@@ -43,14 +43,14 @@ export async function injectCfnRole(
             if (cfnRole) {
                 console.log(
                     logSymbols.warning,
-                    chalk.yellow(
+                    chalk.yellowBright(
                         'This can now be injected by deploy pipe and removed from serverless.yaml'
                     )
                 );
             } else {
                 console.log(
                     logSymbols.warning,
-                    chalk.yellow(
+                    chalk.yellowBright(
                         `This will be overwritten with ${cfnRole}. Please remove from serverless.yaml`
                     )
                 );
@@ -63,7 +63,7 @@ export async function injectCfnRole(
         if (!cfnRole) {
             console.warn(
                 logSymbols.warning,
-                chalk.yellow('Please provide a CFN role for deployment')
+                chalk.yellowBright('Please provide a CFN role for deployment')
             );
             return;
         }
@@ -79,10 +79,12 @@ export async function injectCfnRole(
         await writeFile(serverlessYamlPath, modifiedYaml, 'utf8');
         console.log(
             logSymbols.success,
-            chalk.green(`Injected CFN role ${cfnRole} at ${serverlessYamlPath}`)
+            chalk.greenBright(
+                `Injected CFN role ${cfnRole} at ${serverlessYamlPath}`
+            )
         );
     } catch (error) {
-        console.error(logSymbols.error, chalk.red(error));
+        console.error(logSymbols.error, chalk.redBright(error));
         throw new Error(
             `Failed to inject CFN role at path ${serverlessYamlPath}`
         );

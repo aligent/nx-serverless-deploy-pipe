@@ -29,7 +29,10 @@ export async function uploadDeploymentBadge(
 
     try {
         if (!uploadBadge) {
-            console.log(logSymbols.info, chalk.white('Skipping badge upload'));
+            console.log(
+                logSymbols.info,
+                chalk.whiteBright('Skipping badge upload')
+            );
             return statusCode;
         }
 
@@ -59,7 +62,7 @@ export async function uploadDeploymentBadge(
         );
         return statusCode;
     } catch (error) {
-        console.error(logSymbols.error, chalk.red(error));
+        console.error(logSymbols.error, chalk.redBright(error));
         return 1;
     }
 }

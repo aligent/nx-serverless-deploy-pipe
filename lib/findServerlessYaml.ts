@@ -8,7 +8,7 @@ export async function findServerlessYaml(basePath: string) {
 
     console.log(
         logSymbols.info,
-        chalk.white(
+        chalk.whiteBright(
             `Fetching serverless configuration with pattern ${globPattern}`
         )
     );
@@ -18,7 +18,7 @@ export async function findServerlessYaml(basePath: string) {
     for (const file of files) {
         console.log(
             logSymbols.info,
-            chalk.white('Found serverless.yml at: ', file)
+            chalk.whiteBright('Found serverless.yml at:', file)
         );
     }
 

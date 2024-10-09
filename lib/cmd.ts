@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as cp from 'child_process';
+import { SpawnOptions, spawn } from 'child_process';
 import logSymbols from 'log-symbols';
 import { env } from './env';
 
@@ -20,29 +20,22 @@ function splitCommandAndArgs(command: string): Command {
 // Wrap spawn in a promise
 function asyncSpawn(
     command: string,
-    args?: ReadonlyArray<string>,
-    options?: cp.SpawnOptionsWithoutStdio
+    args: ReadonlyArray<string>,
+    options: SpawnOptions
 ): Promise<number | null> {
     return new Promise(function (resolve, reject) {
         if (env.debug) {
             const commandWithArgs = `${command} ${args?.join(' ')}`;
             const optionsStr = JSON.stringify(options);
             console.log(
-                chalk.white(
-                    `ℹ️ Executing command: ${commandWithArgs} with options: ${optionsStr}`
+                logSymbols.info,
+                chalk.whiteBright(
+                    `Executing command: ${commandWithArgs} with options: ${optionsStr}`
                 )
             );
         }
 
-        const process = cp.spawn(command, args, options);
-
-        process.stdout.on('data', (data) => {
-            console.log(logSymbols.info, chalk.white(data.toString()));
-        });
-
-        process.stderr.on('data', (data) => {
-            console.error(logSymbols.error, chalk.red(data.toString()));
-        });
+        const process = spawn(command, args, options);
 
         process.on('exit', function (code) {
             if (code !== 0) reject(code);
@@ -57,15 +50,23 @@ function asyncSpawn(
 
 function runCommandString(
     command: string,
-    workDir?: string
+    workDir: string
 ): Promise<number | null> {
-    console.log(logSymbols.info, chalk.white(`Running command: ${command}`));
+    console.log(
+        logSymbols.info,
+        chalk.whiteBright(`Running command: ${command}`)
+    );
     const cmd = splitCommandAndArgs(command);
-    return asyncSpawn(cmd.command, cmd.args, { cwd: workDir });
+    return asyncSpawn(cmd.command, cmd.args, {
+        cwd: workDir,
+        stdio: ['pipe', 'inherit', 'inherit'],
+    });
 }
 
-export async function runCLICommand(commandStr: Array<string>) {
-    const workDir = process.env.BITBUCKET_CLONE_DIR;
+export async function runCLICommand(
+    commandStr: Array<string>,
+    workDir: string
+) {
     console.log(logSymbols.info, chalk.white(`Running commands in ${workDir}`));
 
     for (const cmd of commandStr) {

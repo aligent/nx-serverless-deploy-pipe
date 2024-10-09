@@ -68,14 +68,16 @@ async function main() {
             `${baseCommand} --stage ${stage} --aws-profile ${profile} ${verbose}`
         );
 
-        await runCLICommand(commands);
+        await runCLICommand(commands, bitbucketCloneDir);
 
         deploymentStatus = true;
     } catch (error) {
-        console.error(logSymbols.error, chalk.red(error));
+        if (error instanceof Error) {
+            console.error(logSymbols.error, chalk.redBright(error.message));
+        }
         console.error(
             logSymbols.error,
-            chalk.red(
+            chalk.redBright(
                 'Deployment failed! Please check the logs for more details.'
             )
         );
