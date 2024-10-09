@@ -96,18 +96,19 @@ The pipe expects:
 
 ## Development
 
-To build the image locally:
+1. build the image locally:
 
 ```bash
-# [Optional] Run this if we want to remove devDependencies from node_modules before building
-npm ci --omit=dev
 # Transpile our source code to Javascript
 npm run build
+# [Optional] Run this if we want to remove devDependencies from node_modules before building docker image
+# If we run this, we will need to re-run `npm ci` later on if we fix bug & want to build another image.
+npm prune --production
 # Build docker image
 docker build --build-arg="NODE_TAG=20" -t aligent/nx-pipe:20-alpine .
 ```
 
-To run the container locally and mount current local directory to the /app/work folder:
+2. Run the container locally and mount current local directory to the /app/work folder:
 
 ```bash
 docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/sh \
@@ -121,6 +122,7 @@ docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --ent
   -e UPLOAD_BADGE=false \
   -e APP_USERNAME=test-app-username \
   -e APP_PASSWORD=test-app-password \
+  -e DEBUG=true \
   aligent/nx-pipe:20-alpine
 ```
 
