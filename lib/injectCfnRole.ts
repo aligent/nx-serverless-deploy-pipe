@@ -1,7 +1,9 @@
 import type { AWS } from '@serverless/typescript';
+import chalk from 'chalk';
 import { readFile, writeFile } from 'fs/promises';
 import { dump, load } from 'js-yaml';
 import { CLOUDFORMATION_SCHEMA } from 'js-yaml-cloudformation-schema';
+import logSymbols from 'log-symbols';
 import { env } from './env';
 
 export async function injectCfnRole(
@@ -14,7 +16,12 @@ export async function injectCfnRole(
         const yaml = await readFile(serverlessYamlPath, 'utf8');
         const serverless = load(yaml, { schema: CLOUDFORMATION_SCHEMA }) as AWS;
 
-        if (env.debug) console.log(JSON.stringify(serverless, null, 2));
+        if (env.debug) {
+            console.log(
+                logSymbols.info,
+                chalk.whiteBright(JSON.stringify(serverless, null, 2))
+            );
+        }
 
         // Ensure iam exists in the provider block
         if (!('iam' in serverless.provider)) {
@@ -26,17 +33,26 @@ export async function injectCfnRole(
             'cfnRole' in serverless.provider ||
             'deploymentRole' in serverless.provider.iam!
         ) {
-            console.log(
-                `ℹ️ It looks like serverless.yaml already defines a CFN role.`
+            console.warn(
+                logSymbols.warning,
+                chalk.yellowBright(
+                    'It looks like serverless.yaml already defines a CFN role.'
+                )
             );
 
             if (cfnRole) {
                 console.log(
-                    `ℹ️ This can now be injected by nx-serverless-deploy-pipe and removed from serverless.yaml`
+                    logSymbols.warning,
+                    chalk.yellowBright(
+                        'This can now be injected by deploy pipe and removed from serverless.yaml'
+                    )
                 );
             } else {
                 console.log(
-                    `ℹ️ This will be overwritten with ${cfnRole}. Please remove from serverless.yaml`
+                    logSymbols.warning,
+                    chalk.yellowBright(
+                        `This will be overwritten with ${cfnRole}. Please remove from serverless.yaml`
+                    )
                 );
             }
 
@@ -45,7 +61,10 @@ export async function injectCfnRole(
 
         // If we don't have a role to inject no point writing the file
         if (!cfnRole) {
-            console.log(`ℹ️ Please provide a CFN role for deployment`);
+            console.warn(
+                logSymbols.warning,
+                chalk.yellowBright('Please provide a CFN role for deployment')
+            );
             return;
         }
 
@@ -58,11 +77,16 @@ export async function injectCfnRole(
             schema: CLOUDFORMATION_SCHEMA,
         });
         await writeFile(serverlessYamlPath, modifiedYaml, 'utf8');
-        console.log(`ℹ️ Injected CFN role ${cfnRole} at ${serverlessYamlPath}`);
+        console.log(
+            logSymbols.success,
+            chalk.greenBright(
+                `Injected CFN role ${cfnRole} at ${serverlessYamlPath}`
+            )
+        );
     } catch (error) {
-        console.log(`Error: ${error}`);
+        console.error(logSymbols.error, chalk.redBright(error));
         throw new Error(
-            `Failed to inject CFN_role at path ${serverlessYamlPath}`
+            `Failed to inject CFN role at path ${serverlessYamlPath}`
         );
     }
 }
