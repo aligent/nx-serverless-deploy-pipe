@@ -4,11 +4,11 @@ import { readFile, writeFile } from 'fs/promises';
 import { dump, load } from 'js-yaml';
 import { CLOUDFORMATION_SCHEMA } from 'js-yaml-cloudformation-schema';
 import logSymbols from 'log-symbols';
-import { env } from './env';
 
 export async function injectCfnRole(
     serverlessYamlPath: string,
-    cfnRole: string | undefined
+    cfnRole: string | undefined,
+    debug = false
 ) {
     try {
         // Parse yaml file as a JSON object, while extending the yaml schema with
@@ -16,7 +16,7 @@ export async function injectCfnRole(
         const yaml = await readFile(serverlessYamlPath, 'utf8');
         const serverless = load(yaml, { schema: CLOUDFORMATION_SCHEMA }) as AWS;
 
-        if (env.debug) {
+        if (debug) {
             console.log(
                 logSymbols.info,
                 chalk.whiteBright(JSON.stringify(serverless, null, 2))

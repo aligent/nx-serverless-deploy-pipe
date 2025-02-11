@@ -1,24 +1,31 @@
 import chalk from 'chalk';
 import { glob } from 'glob';
 import logSymbols from 'log-symbols';
+import { join } from 'path';
 
 export async function findServerlessYaml(basePath: string) {
     // Both yml and yaml are valid file extensions, so match either
-    const globPattern = `${basePath}/**/serverless.{yml,yaml}`;
+    const globPattern = join(basePath, '**', 'serverless.{yml,yaml}');
 
     console.log(
         logSymbols.info,
         chalk.whiteBright(
-            `Fetching serverless configuration with pattern ${globPattern}`
+            `Searching serverless configuration with pattern: ${globPattern}`
         )
     );
 
-    const files = await glob(globPattern, { ignore: ['**/node_modules/**'] });
+    const files = await glob(globPattern, {
+        ignore: ['**/node_modules/**'],
+        nodir: true,
+        absolute: true,
+    });
 
-    for (const file of files) {
-        console.log(
-            logSymbols.info,
-            chalk.whiteBright('Found serverless.yml at:', file)
+    if (files.length > 0) {
+        files.forEach((file) =>
+            console.log(
+                logSymbols.info,
+                chalk.whiteBright('Found serverless configuration at:', file)
+            )
         );
     }
 

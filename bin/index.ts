@@ -1,14 +1,10 @@
 import chalk from 'chalk';
 import logSymbols from 'log-symbols';
-import { runCLICommand } from '../lib/cmd';
+import { buildCommands, runCLICommand } from '../lib/cmd';
 import { env } from '../lib/env';
-import { nodeModulesDirectoryExist } from '../lib/findNodeModules';
 import { findServerlessYaml } from '../lib/findServerlessYaml';
 import { injectCfnRole } from '../lib/injectCfnRole';
-import {
-    detectPackageManager,
-    getInstallCommand,
-} from '../lib/packageManagers';
+import { detectPackageManager } from '../lib/packageManagers';
 import { isNxServerlessMonorepo } from '../lib/serverlessProjectType';
 import { uploadDeploymentBadge } from '../lib/uploadDeploymentBadge';
 
@@ -21,11 +17,8 @@ async function main() {
             awsSecretAccessKey,
             bitbucketCloneDir,
             cfnRole,
-            cmd,
             debug,
-            profile,
             servicesPath,
-            stage,
         } = env;
 
         if (!awsAccessKeyId || !awsSecretAccessKey) {
@@ -41,34 +34,19 @@ async function main() {
             ? `${bitbucketCloneDir}/${servicesPath}`
             : bitbucketCloneDir;
 
-        let serverlessFiles = await findServerlessYaml(searchDirectory);
+        const serverlessFiles = await findServerlessYaml(searchDirectory);
 
-        await Promise.all(
-            serverlessFiles.map((file) => injectCfnRole(file, cfnRole))
-        );
-
-        const commands = [
-            `npx serverless config credentials --provider aws --profile ${profile} --key ${awsAccessKeyId} --secret ${awsSecretAccessKey}`,
-        ];
-
-        const isNodeModulesExists = await nodeModulesDirectoryExist(
-            bitbucketCloneDir
-        );
-        if (!isNodeModulesExists) {
-            const installCmd = getInstallCommand(packageManager);
-            commands.unshift(installCmd);
+        if (serverlessFiles.length === 0) {
+            throw new Error('No serverless configuration files found.');
         }
 
-        const baseCommand = isMonorepo
-            ? `npx nx run-many -t ${cmd} --`
-            : `npx serverless ${cmd}`;
-        const verbose = debug ? '--verbose' : '';
-
-        commands.push(
-            `${baseCommand} --stage ${stage} --aws-profile ${profile} ${verbose}`
+        await Promise.all(
+            serverlessFiles.map((file) => injectCfnRole(file, cfnRole, debug))
         );
 
-        await runCLICommand(commands, bitbucketCloneDir);
+        const commands = await buildCommands(isMonorepo, packageManager);
+
+        await runCLICommand(commands, bitbucketCloneDir, debug);
 
         deploymentStatus = true;
     } catch (error) {
@@ -89,4 +67,6 @@ async function main() {
 }
 
 // Execute the main function
-main();
+main().catch((error) =>
+    console.error(logSymbols.error, chalk.redBright(error))
+);

@@ -1,13 +1,14 @@
 import { existsSync } from 'fs';
 import { glob } from 'glob';
-import path from 'path';
+import { join } from 'path';
 
 export async function isNxServerlessMonorepo(directoryPath: string) {
-    const isNxFileExist = existsSync(path.join(directoryPath, 'nx.json'));
+    const isNxFileExist = existsSync(join(directoryPath, 'nx.json'));
 
     const serverlessYmlFiles = await glob('serverless.{yml,yaml}', {
         cwd: directoryPath,
         ignore: ['**/node_modules/**'],
+        nodir: true,
     });
     const isServerlessFileExist = serverlessYmlFiles.length > 0;
 

@@ -1,26 +1,28 @@
 import { existsSync } from 'fs';
+import { join } from 'path';
 
-type PackageManager = 'npm' | 'pnpm' | 'yarn';
+export type PackageManager = 'npm' | 'pnpm' | 'yarn';
 
 export function detectPackageManager(directoryPath: string): PackageManager {
-    if (existsSync(`${directoryPath}/yarn.lock`)) {
+    if (existsSync(join(directoryPath, 'yarn.lock'))) {
         return 'yarn';
     }
 
-    if (existsSync(`${directoryPath}/pnpm-lock.yaml`)) {
+    if (existsSync(join(directoryPath, 'pnpm-lock.yaml'))) {
         return 'pnpm';
     }
 
-    return `npm`;
+    return 'npm';
 }
 
 export function getInstallCommand(packageManager: PackageManager) {
     switch (packageManager) {
-        case 'npm':
-            return 'npm ci';
         case 'pnpm':
             return 'pnpm install --frozen-lockfile';
         case 'yarn':
             return 'yarn install --frozen-lockfile';
+        case 'npm':
+        default:
+            return 'npm ci';
     }
 }

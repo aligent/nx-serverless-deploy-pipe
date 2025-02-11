@@ -25,6 +25,7 @@ export async function uploadDeploymentBadge(
         bitbucketRepoSlug,
         bitbucketWorkspace,
         uploadBadge,
+        timezone,
     } = env;
 
     try {
@@ -42,7 +43,7 @@ export async function uploadDeploymentBadge(
             );
         }
 
-        const badge = generateDeploymentBadge(wasSuccessful);
+        const badge = generateDeploymentBadge(wasSuccessful, timezone);
 
         const formData = new FormData();
         formData.append('files', badge, {
@@ -67,10 +68,8 @@ export async function uploadDeploymentBadge(
     }
 }
 
-function generateDeploymentBadge(wasSuccessful: boolean) {
-    const time = dayjs(new Date())
-        .tz(env.timezone)
-        .format('DD MMM, YYYY, HH:mm');
+function generateDeploymentBadge(wasSuccessful: boolean, timezone: string) {
+    const time = dayjs(new Date()).tz(timezone).format('DD MMM, YYYY, HH:mm');
 
     return makeBadge({
         label: 'deployment',
