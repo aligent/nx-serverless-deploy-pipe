@@ -1,7 +1,7 @@
 ARG NODE_TAG
 FROM node:${NODE_TAG}-alpine AS builder
 
-# `WORKDIR` will create the folder if it doesn't exsist
+# `WORKDIR` will create the folder if it doesn't exist
 WORKDIR /build-stage
 COPY package*.json ./
 RUN npm ci
@@ -15,9 +15,7 @@ FROM node:${NODE_TAG}-alpine
 
 WORKDIR /pipe
 
-# The `--force` flag force replace `yarn` if it exist in base image
-# This ensure we have the latest version of package managers
-RUN npm install -g --force npm pnpm yarn
+RUN corepack enable
 
 COPY --from=builder /build-stage/node_modules ./node_modules
 COPY --from=builder /build-stage/dist/ ./
