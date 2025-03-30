@@ -55,7 +55,7 @@ async function main() {
             bitbucketCloneDir
         );
         if (!isNodeModulesExists) {
-            const installCmd = getInstallCommand(packageManager);
+            const installCmd = getInstallCommand(packageManager, debug);
             commands.unshift(installCmd);
         }
 
