@@ -1,4 +1,5 @@
 import { existsSync } from 'fs';
+import { env } from './env';
 
 const supportedPackageManagers = ['npm', 'pnpm', 'yarn'] as const;
 type PackageManager = (typeof supportedPackageManagers)[number];
@@ -26,10 +27,7 @@ export function detectPackageManager(directoryPath: string): PackageManager {
     return `npm`;
 }
 
-export function getInstallCommand(
-    packageManager: PackageManager,
-    debug: boolean = false,
-): string {
+export function getInstallCommand(packageManager: PackageManager): string {
     const installCommand = installCommands[packageManager];
     if (!installCommand) {
         const packageManagers = supportedPackageManagers.join(', ');
@@ -38,6 +36,6 @@ export function getInstallCommand(
         );
     }
 
-    const debugFlag = debug ? ` ${debugFlags[packageManager]}` : '';
+    const debugFlag = env.debug ? ` ${debugFlags[packageManager]}` : '';
     return `${installCommand}${debugFlag}`;
 }
