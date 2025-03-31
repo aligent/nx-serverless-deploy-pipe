@@ -1,6 +1,19 @@
 import { existsSync } from 'fs';
+import { env } from './env';
 
-type PackageManager = 'npm' | 'pnpm' | 'yarn';
+const supportedPackageManagers = ['npm', 'pnpm', 'yarn'] as const;
+type PackageManager = (typeof supportedPackageManagers)[number];
+
+const installCommands: Record<PackageManager, string> = {
+    npm: 'npm ci',
+    pnpm: 'pnpm install --frozen-lockfile',
+    yarn: 'yarn install --frozen-lockfile',
+};
+const debugFlags: Record<PackageManager, string> = {
+    npm: '--verbose',
+    pnpm: '--verbose',
+    yarn: '--verbose',
+};
 
 export function detectPackageManager(directoryPath: string): PackageManager {
     if (existsSync(`${directoryPath}/yarn.lock`)) {
@@ -14,13 +27,15 @@ export function detectPackageManager(directoryPath: string): PackageManager {
     return `npm`;
 }
 
-export function getInstallCommand(packageManager: PackageManager) {
-    switch (packageManager) {
-        case 'npm':
-            return 'npm ci';
-        case 'pnpm':
-            return 'pnpm install --frozen-lockfile';
-        case 'yarn':
-            return 'yarn install --frozen-lockfile';
+export function getInstallCommand(packageManager: PackageManager): string {
+    const installCommand = installCommands[packageManager];
+    if (!installCommand) {
+        const packageManagers = supportedPackageManagers.join(', ');
+        throw new Error(
+            `Unsupported package manager: "${packageManager}". Options are: ${packageManagers}`,
+        );
     }
+
+    const debugFlag = env.debug ? ` ${debugFlags[packageManager]}` : '';
+    return `${installCommand}${debugFlag}`;
 }
