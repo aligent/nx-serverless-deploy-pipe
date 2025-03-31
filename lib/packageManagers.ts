@@ -7,7 +7,7 @@ type PackageManager = (typeof supportedPackageManagers)[number];
 const installCommands: Record<PackageManager, string> = {
     npm: 'npm ci',
     pnpm: 'pnpm install --frozen-lockfile',
-    yarn: 'yarn install --frozen-lockfile',
+    yarn: 'yarn install --immutable',
 };
 const debugFlags: Record<PackageManager, string> = {
     npm: '--verbose',
