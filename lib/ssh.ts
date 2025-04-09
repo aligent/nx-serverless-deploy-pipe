@@ -6,7 +6,7 @@ import os from 'os';
  * This function copies the SSH identity file and known hosts file from the Bitbucket Pipelines agent to the local .ssh directory.
  * It also updates the SSH configuration file to include the identity file.
  *
- * @throws {Error} If the SSH identity file cannot be copied or the SSH configuration file cannot be updated.
+ * @returns {Promise<void>} Resolves when the SSH credentials are setup or we fail to update the SSH configuration file (which doesn't fail the pipeline)
  */
 export async function setupSshCredentials(): Promise<void> {
     const homeDir = os.homedir();
@@ -42,7 +42,7 @@ export async function setupSshCredentials(): Promise<void> {
         console.error(
             'Failed to update SSH configuration, check that SSH key configuration in Pipelines is valid. \n Check Pipelines -> SSH Keys.'
         );
-        throw e;
+        return;
     }
 
     // Copy over the known_hosts file that Bitbucket generated
@@ -57,7 +57,7 @@ export async function setupSshCredentials(): Promise<void> {
         console.error(
             'Failed to update hosts file. \n Check Pipelines configuration for known hosts.'
         );
-        throw e;
+        return;
     }
 
     console.log('Updating SSH directory permissions');
