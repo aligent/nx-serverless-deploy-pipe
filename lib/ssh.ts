@@ -10,49 +10,68 @@ import os from 'os';
  */
 export async function setupSshCredentials(): Promise<void> {
     const homeDir = os.homedir();
-    const sshDir = `${homeDir}/.ssh/`;
-    const sshConfigDir = `/opt/atlassian/pipelines/agent/ssh`;
+    const sshDir = `${homeDir}/.ssh`;
+
+    // Bitbucket injects the SSH config into the container at these paths...
+    const sshConfigDir = '/opt/atlassian/pipelines/agent/ssh';
     const identityFile = `${sshConfigDir}/id_rsa_tmp`;
     const knownHostsFile = `${sshConfigDir}/known_hosts`;
 
-    // Ensure the SSH directory exists, when `stat` throws an error, we know the directory doesn't exist
-    const sshDirExists = await fs.promises
-        .stat(sshDir)
-        .then((stat) => stat.isDirectory())
-        .catch((err) => false);
-    if (!sshDirExists) {
+    // ...and we copy them to the user's .ssh directory
+    const hostsFile = `${sshDir}/known_hosts`;
+    const pipelinesIdFile = `${sshDir}/pipelines_id`;
+    const configFile = `${sshDir}/config`;
+
+    // Ensure the SSH directory exists, we're OK to create it if it doesn't exist
+    if (!(await pathExists(sshDir))) {
         await fs.promises.mkdir(sshDir, { recursive: true });
     }
 
-    // Copy over the SSH identity file that Bitbucket has generated, if this fails then we should fail the whole pipeline
+    // Ensure all the required directories and files exist
+    // If these don't exist, we can't continue
+    const pathsToCheck = [
+        sshConfigDir,
+        identityFile,
+        knownHostsFile,
+        configFile,
+    ];
+    for (const path of pathsToCheck) {
+        if (!(await pathExists(path))) {
+            console.error(
+                `${path} not found. Check that the SSH configuration is valid.`
+            );
+            return;
+        }
+    }
+
+    // Copy the Bitbucket injected identity file to the local .ssh directory
     try {
         console.log('Attempting to copy SSH identity file...');
 
-        const pipelinesIdFile = `${sshDir}/pipelines_id`;
         await fs.promises.copyFile(identityFile, pipelinesIdFile);
 
         console.log(`Copied to ${pipelinesIdFile}`);
         console.log(`Adding identity file config to config file`);
 
-        const configFile = `${sshDir}/config`;
         await fs.promises.appendFile(
             configFile,
             `\nIdentityFile ${pipelinesIdFile}\n`
         );
     } catch (e) {
         console.error(
-            'Failed to update SSH configuration, check that SSH key configuration in Pipelines is valid. \n Check Pipelines -> SSH Keys.'
+            `Failed to update SSH configuration, check that SSH key configuration in Pipelines is valid. \n Check Pipelines -> SSH Keys.\n\n ${
+                (e as Error).message
+            }`
         );
         return;
     }
 
-    // Copy over the known_hosts file that Bitbucket generated
+    // Copy the Bitbucket injected known hosts file to the local .ssh directory
     try {
         console.log('Piping known hosts into runtime ssh config');
         const knownHosts = await fs.promises
             .readFile(knownHostsFile)
             .then((buf) => `\n${buf.toString()}\n`);
-        const hostsFile = `${sshDir}/known_hosts`;
         await fs.promises.appendFile(hostsFile, knownHosts);
     } catch (e) {
         console.error(
@@ -88,4 +107,15 @@ async function chmodRecursive(path: fs.PathLike, mode: fs.Mode): Promise<void> {
             await fs.promises.chmod(fullPath, mode);
         }
     }
+}
+
+async function pathExists(path: fs.PathLike): Promise<boolean> {
+    console.log(`Checking if ${path} exists`);
+    // An error _typically_ means the object at `path` doesn't exist
+    // Though we may want to check whether the error is a permission error
+    // or a file not found error (the latter is OK)
+    return fs.promises
+        .stat(path)
+        .then((_) => true)
+        .catch((_) => false);
 }
