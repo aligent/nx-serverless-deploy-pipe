@@ -15,10 +15,11 @@ export async function setupSshCredentials(): Promise<void> {
     const identityFile = `${sshConfigDir}/id_rsa_tmp`;
     const knownHostsFile = `${sshConfigDir}/known_hosts`;
 
-    // Ensure the SSH directory exists
+    // Ensure the SSH directory exists, when `stat` throws an error, we know the directory doesn't exist
     const sshDirExists = await fs.promises
         .stat(sshDir)
-        .then((stat) => stat.isDirectory());
+        .then((stat) => stat.isDirectory())
+        .catch((err) => false);
     if (!sshDirExists) {
         await fs.promises.mkdir(sshDir, { recursive: true });
     }
