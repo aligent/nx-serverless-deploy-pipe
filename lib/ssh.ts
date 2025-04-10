@@ -37,7 +37,7 @@ export async function setupSshCredentials(): Promise<void> {
         const configFile = `${sshDir}/config`;
         await fs.promises.appendFile(
             configFile,
-            `IdentityFile ${pipelinesIdFile}`
+            `\nIdentityFile ${pipelinesIdFile}\n`
         );
     } catch (e) {
         console.error(
@@ -51,7 +51,7 @@ export async function setupSshCredentials(): Promise<void> {
         console.log('Piping known hosts into runtime ssh config');
         const knownHosts = await fs.promises
             .readFile(knownHostsFile)
-            .then((buf) => buf.toString());
+            .then((buf) => `\n${buf.toString()}\n`);
         const hostsFile = `${sshDir}/known_hosts`;
         await fs.promises.appendFile(hostsFile, knownHosts);
     } catch (e) {
