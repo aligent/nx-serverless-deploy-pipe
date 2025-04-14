@@ -29,16 +29,11 @@ export async function setupSshCredentials(): Promise<void> {
 
     // Ensure all the required directories and files exist
     // If these don't exist, we can't continue
-    const pathsToCheck = [
-        sshConfigDir,
-        identityFile,
-        knownHostsFile,
-        configFile,
-    ];
+    const pathsToCheck = [sshConfigDir, identityFile, knownHostsFile];
     for (const path of pathsToCheck) {
         if (!(await pathExists(path))) {
             console.error(
-                `${path} not found. Check that the SSH configuration is valid.`
+                `${path} not found. Check that the SSH configuration is valid.`,
             );
             return;
         }
@@ -55,13 +50,13 @@ export async function setupSshCredentials(): Promise<void> {
 
         await fs.promises.appendFile(
             configFile,
-            `\nIdentityFile ${pipelinesIdFile}\n`
+            `\nIdentityFile ${pipelinesIdFile}\n`,
         );
     } catch (e) {
         console.error(
             `Failed to update SSH configuration, check that SSH key configuration in Pipelines is valid. \n Check Pipelines -> SSH Keys.\n\n ${
                 (e as Error).message
-            }`
+            }`,
         );
         return;
     }
@@ -75,7 +70,7 @@ export async function setupSshCredentials(): Promise<void> {
         await fs.promises.appendFile(hostsFile, knownHosts);
     } catch (e) {
         console.error(
-            'Failed to update hosts file. \n Check Pipelines configuration for known hosts.'
+            'Failed to update hosts file. \n Check Pipelines configuration for known hosts.',
         );
         return;
     }
