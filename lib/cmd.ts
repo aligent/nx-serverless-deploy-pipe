@@ -37,6 +37,30 @@ function asyncSpawn(
 
         const process = spawn(command, args, options);
 
+        process.stdout?.on("data", function (data) {
+            if (env.debug) {
+                console.log(`stdout: ${data}`);
+            }
+        });
+
+        process.stderr?.on("data", function (data) {
+            if (env.debug) {
+                console.log(`stderr: ${data}`);
+            }
+        });
+
+        process.on('close', function (code) {
+            if (env.debug) {
+                console.log(`child process close all stdio with code ${code}`);
+            }
+        });
+
+        process.on('disconnect', function () {
+            if (env.debug) {
+                console.log('child process disconnected');
+            }
+        });
+
         process.on('exit', function (code) {
             if (code !== 0) reject(code);
             resolve(code);
