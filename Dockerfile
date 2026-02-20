@@ -1,4 +1,4 @@
-ARG NODE_TAG
+ARG NODE_TAG=20
 FROM node:${NODE_TAG}-alpine AS builder
 
 # `WORKDIR` will create the folder if it doesn't exist
