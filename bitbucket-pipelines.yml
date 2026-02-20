@@ -1,4 +1,4 @@
-image: atlassian/default-image:3
+image: atlassian/default-image:5
 clone:
   depth: full
 
@@ -13,6 +13,7 @@ definitions:
         services:
           - docker
         script:
+          - export DOCKER_BUILDKIT=0
           - docker build --build-arg NODE_TAG=20 -t "${BITBUCKET_REPO_SLUG}:pr-${BITBUCKET_PR_ID}" .
 
     - step: &push-docker-build
