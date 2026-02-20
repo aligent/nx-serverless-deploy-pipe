@@ -10,6 +10,17 @@ definitions:
     docker:
       memory: 3072
   steps:
+    - step: &docker-build
+      name: 🛫 Build and Push Docker Image
+      script:
+        - mkdir -vp ~/.docker/cli-plugins/
+        - ARCH=amd64
+        - BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
+        - curl --silent -L --output ~/.docker/cli-plugins/docker-buildx $BUILDX_URL
+        - chmod a+x ~/.docker/cli-plugins/docker-buildx
+        - docker buildx build
+          --platform linux/amd64,linux/arm64
+          --build-arg NODE_TAG=20
     - step: &push-docker-build
         name: 🛫 Build and Push Docker Image
         script:
@@ -26,7 +37,13 @@ definitions:
             --push
             --build-arg NODE_TAG=20
             --tag "$IMAGE_NAME" .
+
 pipelines:
+  pull-requests:
+    '**':
+      - step:
+          <<: *docker-build
+          name: "🚧 Docker Build"
   branches:
      main:
       - step:
