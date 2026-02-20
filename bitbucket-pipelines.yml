@@ -30,7 +30,7 @@ definitions:
           - echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --password-stdin
           - docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
 
-          - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+          - IMAGE_NAME=${DOCKER_ACCOUNT}/$BITBUCKET_REPO_SLUG
           - |
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
