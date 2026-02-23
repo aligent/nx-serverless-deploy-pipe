@@ -8,52 +8,21 @@ definitions:
       memory: 3072
 
   steps:
-    - step: &docker-build
+    - step: &docker-validate
         name: 🚧 Docker Build (validate)
         services:
           - docker
         script:
-          - mkdir -vp ~/.docker/cli-plugins/
-          - ARCH=amd64
-          - BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
-          - curl --silent -L --output ~/.docker/cli-plugins/docker-buildx "$BUILDX_URL"
-          - chmod a+x ~/.docker/cli-plugins/docker-buildx
+          - export NODE_TAG="${NODE_TAG:-20}"
+          - bash ci/docker-buildx-validate.sh
 
-          - echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --password-stdin
-          - docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
-
-          - export NODE_TAG=${NODE_TAG:-20}
-          - |
-            docker buildx build \
-              --platform linux/amd64 \
-              --build-arg NODE_TAG="${NODE_TAG}" \
-              --output=type=cacheonly \
-              .
-
-    - step: &push-docker-build
+    - step: &docker-push
         name: 🛫 Build and Push Docker Image
         services:
           - docker
         script:
-          - mkdir -vp ~/.docker/cli-plugins/
-          - ARCH=amd64
-          - BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
-          - curl --silent -L --output ~/.docker/cli-plugins/docker-buildx "$BUILDX_URL"
-          - chmod a+x ~/.docker/cli-plugins/docker-buildx
-
-          - echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --password-stdin
-          - docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
-
-          - IMAGE_NAME=${DOCKER_ACCOUNT}/$BITBUCKET_REPO_SLUG
-          
           - export NODE_TAG="${NODE_TAG:-20}"
-          - |
-            docker buildx build \
-              --platform linux/amd64,linux/arm64 \
-              --push \
-              --build-arg NODE_TAG=${NODE_TAG} \
-              --tag "${IMAGE_NAME}:${NODE_TAG}" \
-              .
+          - bash ci/docker-buildx-push.sh
 
 pipelines:
   pull-requests:
@@ -63,15 +32,24 @@ pipelines:
             - NODE_TAG: ["20", "24"]
           steps:
             - step:
-                <<: *docker-build
-                name: "🚧 Docker Build"
+                <<: *docker-validate
+                name: "🚧 Validate (Node ${NODE_TAG})"
+
   branches:
     main:
       - parallel:
-          matrix:
-            - NODE_TAG: ["20", "24"]
           steps:
             - step:
-                <<: *push-docker-build
-                name: "🛫 Build and Push Docker Image"
+                <<: *docker-push
+                name: "🛫 Build & Push (Node 20)"
                 deployment: main
+                script:
+                  - export NODE_TAG=20
+                  - bash ci/docker-buildx-push.sh
+            - step:
+                <<: *docker-push
+                name: "🛫 Build & Push (Node 24)"
+                deployment: main
+                script:
+                  - export NODE_TAG=24
+                  - bash ci/docker-buildx-push.sh
