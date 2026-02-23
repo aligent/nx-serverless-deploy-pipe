@@ -14,7 +14,7 @@ definitions:
           - docker
         script:
           - export DOCKER_BUILDKIT=0
-          - docker build --build-arg NODE_TAG=20 -t "${BITBUCKET_REPO_SLUG}:pr-${BITBUCKET_PR_ID}" .
+          - docker build --build-arg NODE_TAG=${NODE_TAG} -t "${BITBUCKET_REPO_SLUG}:pr-${BITBUCKET_PR_ID}" .
 
     - step: &push-docker-build
         name: 🛫 Build and Push Docker Image
@@ -35,9 +35,8 @@ definitions:
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
               --push \
-              --build-arg NODE_TAG=20 \
-              --tag "${IMAGE_NAME}:latest" \
-              --tag "${IMAGE_NAME}:${BITBUCKET_COMMIT}" \
+              --build-arg NODE_TAG=${NODE_TAG} \
+              --tag "${IMAGE_NAME}:${NODE_TAG}" \
               .
 
 pipelines:
