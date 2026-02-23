@@ -35,21 +35,14 @@ pipelines:
                 <<: *docker-validate
                 name: "🚧 Validate (Node ${NODE_TAG})"
 
-  branches:
-    main:
-      - parallel:
-          steps:
-            - step:
-                <<: *docker-push
-                name: "🛫 Build & Push (Node 20)"
-                deployment: main
-                script:
-                  - export NODE_TAG=20
-                  - bash ci/docker-buildx-push.sh
-            - step:
-                <<: *docker-push
-                name: "🛫 Build & Push (Node 24)"
-                deployment: main
-                script:
-                  - export NODE_TAG=24
-                  - bash ci/docker-buildx-push.sh
+branches:
+  main:
+    - step:
+        <<: *docker-push
+        name: "🛫 Build & Push (Node 20 + 24)"
+        deployment: main
+        script:
+          - export NODE_TAG=20
+          - bash ci/docker-buildx-push.sh
+          - export NODE_TAG=24
+          - bash ci/docker-buildx-push.sh
