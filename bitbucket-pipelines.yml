@@ -45,6 +45,8 @@ definitions:
           - docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
 
           - IMAGE_NAME=${DOCKER_ACCOUNT}/$BITBUCKET_REPO_SLUG
+          
+          - export NODE_TAG="${NODE_TAG:-20}"
           - |
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
