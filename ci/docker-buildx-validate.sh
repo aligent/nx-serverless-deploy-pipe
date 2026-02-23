@@ -14,9 +14,8 @@ curl --silent -L --output ~/.docker/cli-plugins/docker-buildx "$BUILDX_URL"
 chmod a+x ~/.docker/cli-plugins/docker-buildx
 
 echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --password-stdin
-
 # Unique per build, so it never collides
-BUILDER_NAME="cloud-${DOCKER_ACCOUNT}-${CLOUD_BUILDER_NAME}-${BITBUCKET_BUILD_NUMBER:-local}"
+BUILDER_NAME="cloud-${DOCKER_ACCOUNT}-${CLOUD_BUILDER_NAME}-${NODE_TAG}"
 docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}" --name "$BUILDER_NAME"
 
 
