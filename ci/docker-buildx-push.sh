@@ -26,3 +26,4 @@ docker buildx build \
   --build-arg NODE_TAG="${NODE_TAG}" \
   --tag "${IMAGE_NAME}:${NODE_TAG}" \
   .
+  
