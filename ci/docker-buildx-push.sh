@@ -13,12 +13,9 @@ curl --silent -L --output ~/.docker/cli-plugins/docker-buildx "$BUILDX_URL"
 chmod a+x ~/.docker/cli-plugins/docker-buildx
 
 echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --password-stdin
-# If it exists, use it; otherwise create it
-if docker buildx inspect "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}" >/dev/null 2>&1; then
-  docker buildx use "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
-else
-  docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
-fi
+# Unique per build, so it never collides
+BUILDER_NAME="cloud-${DOCKER_ACCOUNT}-${CLOUD_BUILDER_NAME}-${BITBUCKET_BUILD_NUMBER:-local}"
+docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME} --name "$BUILDER_NAME"
 
 IMAGE_NAME="${DOCKER_ACCOUNT}/${BITBUCKET_REPO_SLUG}"
 echo "Pushing ${IMAGE_NAME}:${NODE_TAG}"
