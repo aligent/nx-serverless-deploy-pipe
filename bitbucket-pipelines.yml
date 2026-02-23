@@ -34,9 +34,9 @@ pipelines:
         <<: *docker-validate
         name: "🚧 Validate (Node 20 + 24)"
 
-branches:
-  main:
-    - step:
-        <<: *docker-push
-        name: "🛫 Build & Push (Node 20 + 24)"
-        deployment: main
+  branches:
+    main:
+      - step:
+          <<: *docker-push
+          name: "🛫 Build & Push (Node 20 + 24)"
+          deployment: main
