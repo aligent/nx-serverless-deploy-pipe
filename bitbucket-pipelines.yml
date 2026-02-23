@@ -42,11 +42,17 @@ definitions:
 pipelines:
   pull-requests:
     '**':
+      - parallel:
+          matrix:
+            - NODE_TAG: ["20", "24"]
       - step:
           <<: *docker-build
           name: "🚧 Docker Build"
   branches:
     main:
+      - parallel:
+          matrix:
+            - NODE_TAG: ["20", "24"]
       - step:
           <<: *push-docker-build
           name: "🛫 Build and Push Docker Image"
