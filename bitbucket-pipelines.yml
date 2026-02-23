@@ -13,8 +13,22 @@ definitions:
         services:
           - docker
         script:
-          - export DOCKER_BUILDKIT=0
-          - docker build --build-arg NODE_TAG=${NODE_TAG} -t "${BITBUCKET_REPO_SLUG}:pr-${BITBUCKET_PR_ID}" .
+          - mkdir -vp ~/.docker/cli-plugins/
+          - ARCH=amd64
+          - BUILDX_URL=$(curl -s https://raw.githubusercontent.com/docker/actions-toolkit/main/.github/buildx-lab-releases.json | jq -r ".latest.assets[] | select(endswith(\"linux-$ARCH\"))")
+          - curl --silent -L --output ~/.docker/cli-plugins/docker-buildx "$BUILDX_URL"
+          - chmod a+x ~/.docker/cli-plugins/docker-buildx
+
+          - echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --password-stdin
+          - docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}"
+
+          - export NODE_TAG=${NODE_TAG:-20}
+          - |
+            docker buildx build \
+              --platform linux/amd64 \
+              --build-arg NODE_TAG="${NODE_TAG}" \
+              --output=type=cacheonly \
+              .
 
     - step: &push-docker-build
         name: 🛫 Build and Push Docker Image
@@ -45,15 +59,17 @@ pipelines:
       - parallel:
           matrix:
             - NODE_TAG: ["20", "24"]
-      - step:
-          <<: *docker-build
-          name: "🚧 Docker Build"
+          steps:
+            - step:
+                <<: *docker-build
+                name: "🚧 Docker Build"
   branches:
     main:
       - parallel:
           matrix:
             - NODE_TAG: ["20", "24"]
-      - step:
-          <<: *push-docker-build
-          name: "🛫 Build and Push Docker Image"
-          deployment: main
+          steps:
+            - step:
+                <<: *push-docker-build
+                name: "🛫 Build and Push Docker Image"
+                deployment: main
