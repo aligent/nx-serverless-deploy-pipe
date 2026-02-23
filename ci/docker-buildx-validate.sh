@@ -17,7 +17,7 @@ echo "$DOCKER_ACCESS_TOKEN" | docker login --username "$DOCKER_ACCOUNT" --passwo
 
 # Unique per build, so it never collides
 BUILDER_NAME="cloud-${DOCKER_ACCOUNT}-${CLOUD_BUILDER_NAME}-${BITBUCKET_BUILD_NUMBER:-local}"
-docker buildx create --use --driver cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME} --name "$BUILDER_NAME"
+docker buildx create --use --driver --name "$BUILDER_NAME" cloud "${DOCKER_ACCOUNT}/${CLOUD_BUILDER_NAME}
 
 
 docker buildx build \
