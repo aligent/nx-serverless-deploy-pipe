@@ -13,7 +13,9 @@ definitions:
         services:
           - docker
         script:
-          - export NODE_TAG="${NODE_TAG:-20}"
+          - export NODE_TAG=20
+          - bash ci/docker-buildx-validate.sh
+          - export NODE_TAG=24
           - bash ci/docker-buildx-validate.sh
 
     - step: &docker-push
@@ -21,19 +23,16 @@ definitions:
         services:
           - docker
         script:
-          - export NODE_TAG="${NODE_TAG:-20}"
+          - export NODE_TAG=20
           - bash ci/docker-buildx-push.sh
-
+          - export NODE_TAG=24
+          - bash ci/docker-buildx-push.sh
 pipelines:
   pull-requests:
     '**':
-      - parallel:
-          matrix:
-            - NODE_TAG: ["20", "24"]
-          steps:
-            - step:
-                <<: *docker-validate
-                name: "🚧 Validate (Node ${NODE_TAG})"
+    - step:
+        <<: *docker-validate
+        name: "🚧 Validate (Node 20 + 24)"
 
 branches:
   main:
@@ -41,8 +40,3 @@ branches:
         <<: *docker-push
         name: "🛫 Build & Push (Node 20 + 24)"
         deployment: main
-        script:
-          - export NODE_TAG=20
-          - bash ci/docker-buildx-push.sh
-          - export NODE_TAG=24
-          - bash ci/docker-buildx-push.sh
