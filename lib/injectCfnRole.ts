@@ -1,10 +1,20 @@
-import type { AWS } from '@serverless/typescript';
 import chalk from 'chalk';
 import { readFile, writeFile } from 'fs/promises';
 import { dump, load } from 'js-yaml';
 import { CLOUDFORMATION_SCHEMA } from 'js-yaml-cloudformation-schema';
 import logSymbols from 'log-symbols';
 import { env } from './env';
+
+interface ServerlessConfig {
+    provider: {
+        cfnRole?: string;
+        iam?: {
+            deploymentRole?: string;
+        };
+        [key: string]: unknown;
+    };
+    [key: string]: unknown;
+}
 
 export async function injectCfnRole(
     serverlessYamlPath: string,
@@ -14,7 +24,7 @@ export async function injectCfnRole(
         // Parse yaml file as a JSON object, while extending the yaml schema with
         // AWS Intrinsic functions (!Sub, !Ref etc) as custom tags
         const yaml = await readFile(serverlessYamlPath, 'utf8');
-        const serverless = load(yaml, { schema: CLOUDFORMATION_SCHEMA }) as AWS;
+        const serverless = load(yaml, { schema: CLOUDFORMATION_SCHEMA }) as ServerlessConfig;
 
         if (env.debug) {
             console.log(

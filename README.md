@@ -19,24 +19,25 @@ Add the following your `bitbucket-pipelines.yml` file:
         variables:
           AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
           AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          SERVERLESS_LICENSE_KEY: ${SERVERLESS_LICENSE_KEY}
 ```
 
 ## Variables
 
-| Variable              | Usage                                                                                                                                          |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| AWS_ACCESS_KEY_ID     | (Required) Injects AWS Access key                                                                                                              |
-| AWS_SECRET_ACCESS_KEY | (Required) Injects AWS Secret key                                                                                                              |
-| CFN_ROLE              | [CloudFormation service role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-servicerole.html) to use for deployment |
-| STAGE                 | Define the stage to deploy. Must be exact three characters. (Default: `stg`)                                                                   |
-| DEBUG                 | Turn on extra debug information. (Accepted values: `true`/`false`)                                                                             |
-| UPLOAD_BADGE          | Whether or not to upload a deployment badge to the repositories downloads section. (Accepted values: `true`/`false`)                           |
-| APP_USERNAME          | The user to upload the badge as. Required if UPLOAD_BADGE is set to `true`.                                                                    |
-| APP_PASSWORD          | The app password of the user uploading the badge. Required if UPLOAD_BADGE is set to `true`.                                                   |
-| TIMEZONE              | Which time zone the time in the badge should use (Default: `Australia/Adelaide`)                                                               |
-| PROFILE               | The profile name that is used for deployment (Default: `bitbucket-deployer`)                                                                   |
-| CMD                   | The command that this pipe will run (Eg: `deploy`, `remove`. Default: `deploy`)                                                                |
-| SERVICES_PATH         | The relative path from root folder to the folder where applications are defined (Default: `services`)                                          |
+| Variable                | Usage                                                                                                                                          |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| AWS_ACCESS_KEY_ID       | (Required) AWS Access key                                                                                                                      |
+| AWS_SECRET_ACCESS_KEY   | (Required) AWS Secret key                                                                                                                      |
+| SERVERLESS_LICENSE_KEY  | (Required) Serverless Framework v4 license key                                                                                                 |
+| CFN_ROLE                | [CloudFormation service role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-servicerole.html) to use for deployment |
+| STAGE                   | Define the stage to deploy. Must be exact three characters. (Default: `stg`)                                                                   |
+| DEBUG                   | Turn on extra debug information. (Accepted values: `true`/`false`)                                                                             |
+| UPLOAD_BADGE            | Whether or not to upload a deployment badge to the repositories downloads section. (Accepted values: `true`/`false`)                           |
+| APP_USERNAME            | The user to upload the badge as. Required if UPLOAD_BADGE is set to `true`.                                                                    |
+| APP_PASSWORD            | The app password of the user uploading the badge. Required if UPLOAD_BADGE is set to `true`.                                                   |
+| TIMEZONE                | Which time zone the time in the badge should use (Default: `Australia/Adelaide`)                                                               |
+| CMD                     | The command that this pipe will run (Eg: `deploy`, `remove`. Default: `deploy`)                                                                |
+| SERVICES_PATH           | The relative path from root folder to the folder where applications are defined (Default: `services`)                                          |
 
 - Default pipelines variables that are available for builds: https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/
 - Please check: https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/ for how to generate an app password.
@@ -117,7 +118,6 @@ docker build --build-arg="NODE_TAG=20" -t aligent/nx-pipe:20-alpine .
 docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --entrypoint=/bin/sh \
   -v $(pwd):/app/work --workdir=/app/work \
   -e BITBUCKET_CLONE_DIR=/app/work \
-  -e PROFILE=bitbucket-deployer \
   -e STAGE=stg \
   -e AWS_ACCESS_KEY_ID=test-access-key-id \
   -e AWS_SECRET_ACCESS_KEY=test-secret-access-key \
