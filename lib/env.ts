@@ -1,10 +1,10 @@
 interface Env {
     debug: boolean;
     stage: string;
-    profile: string;
     cmd: string;
     awsAccessKeyId?: string;
     awsSecretAccessKey?: string;
+    serverlessLicenseKey?: string;
     cfnRole?: string;
     uploadBadge: boolean;
     appUsername?: string;
@@ -20,10 +20,10 @@ interface Env {
 export const env: Env = {
     debug: process.env.DEBUG === 'true',
     stage: process.env.STAGE || 'stg',
-    profile: process.env.PROFILE || 'bitbucket-deployer',
     cmd: process.env.CMD || 'deploy',
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    serverlessLicenseKey: process.env.SERVERLESS_LICENSE_KEY,
     cfnRole: process.env.CFN_ROLE,
     uploadBadge: process.env.UPLOAD_BADGE === 'true',
     appUsername: process.env.APP_USERNAME,
