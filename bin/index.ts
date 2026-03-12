@@ -68,10 +68,10 @@ async function main() {
         const baseCommand = isMonorepo
             ? `npx nx run-many -t ${cmd} --`
             : `npx serverless ${cmd}`;
-        const verbose = debug ? '--verbose' : '';
+        const verbose = debug ? ' --verbose' : '';
 
         commands.push(
-            `${baseCommand} --stage ${stage} ${verbose}`
+            `${baseCommand} --stage ${stage}${verbose}`
         );
 
         await runCLICommand(commands, bitbucketCloneDir);
