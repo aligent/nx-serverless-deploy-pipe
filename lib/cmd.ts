@@ -84,6 +84,7 @@ function runCommandString(
     return asyncSpawn(cmd.command, cmd.args, {
         cwd: workDir,
         stdio: ['pipe', 'inherit', 'inherit'],
+        env: { ...process.env, SLS_AWS_SDK: '3' },
     });
 }
 
