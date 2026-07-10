@@ -13,6 +13,8 @@ RUN npm prune --production
 
 FROM node:${NODE_TAG}-alpine
 
+RUN apk upgrade --no-cache
+
 WORKDIR /pipe
 
 RUN corepack enable
