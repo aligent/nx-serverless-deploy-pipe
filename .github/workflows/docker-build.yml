@@ -1,0 +1,38 @@
+name: Build and Push Docker Image
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    name: Node ${{ matrix.node-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['20', '22', '24']
+    uses: aligent/workflows/.github/workflows/docker-build.yml@main
+    with:
+      image-name: aligent/nx-serverless-deploy-pipe
+      # Only main/staging publish; pull requests and manual runs on other branches just build
+      push: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' }}
+      build-args: |
+        NODE_TAG=${{ matrix.node-version }}
+      # Tags: 24 (main); 24-experimental (staging)
+      tags: |
+        type=raw,value=${{ matrix.node-version }}${{ github.ref_name == 'staging' && '-experimental' || '' }}
+      # Separate cache scope per matrix entry so builds don't overwrite each other's cache
+      cache-from: type=gha,scope=node-${{ matrix.node-version }}
+      cache-to: type=gha,mode=max,scope=node-${{ matrix.node-version }}

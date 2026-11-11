@@ -15,7 +15,7 @@ Add the following your `bitbucket-pipelines.yml` file:
 - step:
     name: 'deploy service'
     script:
-      - pipe: docker://aligent/nx-serverless-deploy-pipe:latest
+      - pipe: docker://ghcr.io/aligent/nx-serverless-deploy-pipe:24
         variables:
           AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
           AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
@@ -128,6 +128,16 @@ docker run -it --memory=4g --memory-swap=4g --memory-swappiness=0 --cpus=4 --ent
   -e DEBUG=true \
   aligent/nx-pipe:20-alpine
 ```
+
+## CI/CD
+
+Docker images are built and pushed to GitHub Container Registry (`ghcr.io/aligent/nx-serverless-deploy-pipe`) via GitHub Actions
+(`.github/workflows/docker-build.yml`, using the shared `aligent/workflows` Docker build workflow). The workflow:
+
+- Builds an image for every configured Node.js version (`20`, `22`, `24`), tagged `<NODE_VERSION>`
+- Pushes images on commits to `main`; commits to `staging` push tags suffixed with `-experimental`
+- Builds without pushing on pull requests
+- Can be triggered manually
 
 ## See also
 
